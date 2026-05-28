@@ -1,52 +1,57 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-void swap(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
+#define MAX 100000
 
-int partition(int arr[], int low, int high) {
-    int pivot = arr[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++) {
-        if (arr[j] < pivot) {
+int partition(int A[], int lb, int ub) {
+    int pivot = A[lb], i = lb, j = ub;
+    while (i <= j) {
+        while (i <= ub && A[i] <= pivot)
             i++;
-            swap(&arr[i], &arr[j]);
+        while (j >= lb+1 && A[j] > pivot)
+            j--;
+        if (i < j) {
+            int t = A[i];
+            A[i] = A[j];
+            A[j] = t;
         }
     }
-
-    swap(&arr[i + 1], &arr[high]);
-    return i + 1;
+    int t = A[j];
+    A[j] = A[lb];
+    A[lb] = t;
+    return j;
 }
 
-void quickSort(int arr[], int low, int high) {
-    if (low < high) {
-        int pi = partition(arr, low, high);
-
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+void quicksort(int A[], int lb, int ub) {
+    if (lb < ub) {
+        int k = partition(A, lb, ub);
+        quicksort(A, lb, k - 1);
+        quicksort(A, k + 1, ub);
     }
-}
-
-void printArray(int arr[], int n) {
-    for (int i = 0; i < n; i++)
-        printf("%d ", arr[i]);
-    printf("\n");
 }
 
 int main() {
-    int arr[] = {10, 7, 8, 9, 1, 5};
-    int n = sizeof(arr) / sizeof(arr[0]);
+    int arr[MAX];
+    srand(time(NULL));
 
-    printf("Original array:\n");
-    printArray(arr, n);
+    for (int i = 1; i <= 10; i++) {
+        int n = i * 10000;
 
-    quickSort(arr, 0, n - 1);
+        // generate random array
+        for (int j = 0; j < n; j++)
+            arr[j] = rand() % 200000;
 
-    printf("Sorted array:\n");
-    printArray(arr, n);
+        clock_t start = clock();
+
+        quicksort(arr, 0, n - 1);
+
+        clock_t end = clock();
+
+        double time_taken = (double)(end - start) / CLOCKS_PER_SEC;
+
+        printf("Input Size = %d, Time Taken = %f seconds\n", n, time_taken);
+    }
 
     return 0;
 }
